@@ -1,0 +1,91 @@
+<style>
+    .elephpant img {
+        width: auto;
+        height: 10rem;
+        max-width: 20rem;
+    }
+</style>
+<div class="widget elephpant">
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-plug"></i> {{ extension.name }}
+        </div>
+        <div class="card-body">
+            <p>Update the random image?</p>
+            {% setcontent elephpant = 'elephpant' %}
+            <div>
+                <p>Current Image</p>
+
+                <div class="image card-img-top">
+                    <div id="elephpant-img-container">
+                    {% if elephpant is defined and elephpant is not null %}
+                        <img src="{{ elephpant.src }}" alt="{{ elephpant.alt }}" />
+                    {% else %}
+                        <p>No image</p>
+                    {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button class="btn btn-secondary" onclick="fetchElephpantImg()">Fetch new image</button>
+
+                <div>
+                    <div id="elephpant-img-preview"></div>
+                    <button id="elephpant-img-store" class="btn btn-secondary d-none" onclick="storeElephpantImg()">Store</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const elephpantImgContainer = document.getElementById('elephpant-img-container');
+    const elephpantImgPreview = document.getElementById('elephpant-img-preview');
+    const storeButton = document.getElementById('elephpant-img-store');
+
+    /**
+     * Fetch a new image from our controller's GET-route
+     */
+    function fetchElephpantImg() {
+        fetch('/random-elephpant')
+            .then(response => response.json())
+            .then(data => {
+                elephpantImgPreview.innerHTML = `<img src="${data.image.src}" alt="${data.image.alt}" />`;
+                storeButton.classList.remove('d-none');
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
+    /**
+     * Store the current preview-image through our controller's POST-route
+     */
+    function storeElephpantImg() {
+        const elephpantImg = elephpantImgPreview.querySelector('img');
+        const randomImg = elephpantImgPreview.querySelector('img');
+        
+        const randomImgSrc = randomImg.getAttribute('src');
+        const randomImgAlt = randomImg.getAttribute('alt');
+
+        fetch('/random-elephpant', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                src: randomImgSrc,
+                alt: randomImgAlt
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                storeButton.classList.add('d-none');
+                elephpantImgContainer.innerHTML = `<img src="${data.image.src}" alt="${data.image.alt}" />`;
+                elephpantImgPreview.innerHTML = '';
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+</script>
