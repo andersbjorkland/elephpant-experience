@@ -61,6 +61,8 @@ class ElephpantController extends AbstractController
      */
     public function storeImage(Request $request, ContentFactory $contentFactory): Response
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         $query = $request->getContent();
         $query = json_decode($query, true);
         $src = "";
